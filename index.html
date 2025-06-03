@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>2</title>
+        <link rel="icon" href="icon.png" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <style>
+            @font-face {
+                font-family: "Open Sans";
+                src: url("opensans.ttf");
+            }
+
+            * {
+                font-family: "Open Sans";
+            }
+
+            body {
+                width: 100vw;
+                height: 100vh;
+                background-position: center;
+                background-size: cover;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                background-image: url("background.jpeg");
+                backdrop-filter: brightness(0.7);
+            }
+
+            /* div {
+                outline: 1px solid red;
+            } */
+
+            span.size-48 {
+                font-size: 48px;
+                font-variation-settings: 'OPSZ' 48;
+            }
+
+            #top {
+                width: 100%;
+                flex-grow: 1;
+                display: flex;
+                align-items: stretch;
+            }
+
+            #bottom {
+                width: 100%;
+                padding: 0 15px;
+                bottom: 0;
+                left: 0;
+                color: white;
+                font-size: 4rem;
+                display: flex;
+                box-sizing: border-box;
+                align-items: stretch;
+            }
+
+            .icon-button {
+                display: inline-block;
+                cursor: pointer;
+            }
+            .icon-button:hover {
+                color: rgb(200, 200, 200);
+            }
+            .icon-button:active {
+                color: rgb(150, 150, 150);
+            }
+
+            #auth {
+                display: none;
+                justify-content: center;
+                align-items: center;
+            }
+            #auth input {
+                border: 3px solid gray;
+                border-radius: 5px;
+                font-size: 1rem;
+                margin-right: 1rem;
+                padding: 5px;
+            }
+            #auth.shown {
+                display: flex;
+            }
+
+            #grace, #jack {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                box-sizing: border-box;
+            }
+
+            .time {
+                color: white;
+                text-shadow: 1px 1px 3px black;
+                padding: 10px 25px;
+            }
+            #jack .time {
+                text-align: right;
+            }
+            .time .big {
+                font-size: 5rem;
+                transition: font-size 0.5s ease-in-out;
+            }
+            .time .small {
+                font-size: 1.5rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="top">
+            <div id="grace">
+                <div class="time">
+                    <span class="big" style="margin-right: 10px"></span><span class="small"></span>
+                </div>  
+            </div>
+            <div id="jack">
+                <div class="time">
+                    <span class="small" style="margin-right: 10px"></span><span class="big"></span>
+                </div>
+            </div>
+        </div>
+        <div id="bottom">
+            <div id="auth">
+                <input type="email" id="username" placeholder="email" size="30" />
+                <input type="password" id="password" placeholder="password" size="30" />
+            </div>
+            <div class="icon-button" id="auth-button">
+                <span class="material-symbols-outlined size-48">lock</span>
+            </div>
+            <div style="flex-grow: 1"></div>
+            <div class="icon-button" id="content-button" style="position: relative; display: none">
+                <span class="material-symbols-outlined size-48">face</span>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script type="module">
+            // Import the functions you need from the SDKs you need
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+            // TODO: Add SDKs for Firebase products that you want to use
+            // https://firebase.google.com/docs/web/setup#available-libraries
+            import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+            import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+            // Your web app's Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyDmoNgi43__XfEhcxOJuIj8EefX9m6Vonc",
+                authDomain: "plustwo-ac8cf.firebaseapp.com",
+                projectId: "plustwo-ac8cf",
+                storageBucket: "plustwo-ac8cf.firebasestorage.app",
+                messagingSenderId: "186273618852",
+                appId: "1:186273618852:web:f6ecd29aea9e6e57397f31"
+            };
+
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const firestore = getFirestore(app);
+            setPersistence(auth, browserLocalPersistence);
+
+            function updateTime(person, tz) {
+                let now = new Date(new Date().toLocaleString("en-US", {timeZone: tz}));
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                let seconds = now.getSeconds();
+                if (hours < 10) hours = "0" + hours;
+                if (hours > 12) hours -= 12;
+                if (hours == 0) hours = 12;
+                if (minutes < 10) minutes = "0" + minutes;
+                if (seconds < 10) seconds = "0" + seconds;
+                $("#" + person + " .time .big").html(hours + ":" + minutes);
+                $("#" + person + " .time .small").html(seconds);
+            }
+
+            let selectedUser = null;
+            function authLoaded() {
+                if (auth.currentUser.email == atob("cm9uZ2phY2ttaWxlc0BnbWFpbC5jb20=")) {
+                    selectedUser = "jack";
+                } else if (auth.currentUser.email == atob("eXVncmFjZTE3MDQ4QGdtYWlsLmNvbQ==")) {
+                    selectedUser = "grace";
+                }
+                setTimeout(() => {
+                    $("#" + selectedUser + " .time .big").css("font-size", "7rem");
+                }, 200);
+            }
+
+            $(() => {
+                let now = new Date();
+                setTimeout(() => {
+                    updateTime("grace", "America/Chicago");
+                    updateTime("jack", "America/New_York");
+                    setInterval(() => {
+                        updateTime("grace", "America/Chicago");
+                        updateTime("jack", "America/New_York");
+                    }, 1000);
+                }, 1000 - now.getMilliseconds());
+
+                let email = null;
+                let password = null;
+                if (localStorage.getItem("email")) {
+                    email = localStorage.getItem("email");
+                    $("#username").val(localStorage.getItem("email"));
+                }
+                if (localStorage.getItem("password")) {
+                    password = localStorage.getItem("password");
+                    $("#password").val(localStorage.getItem("password"));
+                }
+                if (email && password && !auth.currentUser) {
+                    signInWithEmailAndPassword(auth, email, password)
+                        .then((userCredential) => {
+                            authLoaded();
+                        })
+                        .catch((error) => {
+                            alerrt("Error signing in: " + error.message);
+                        });
+                } else if (auth.currentUser) {
+                    authLoaded();
+                }
+            });
+
+            let authShown = false;
+            $("#auth-button").click(() => {
+                if (!authShown) {
+                    authShown = true;
+                    $("#auth").addClass("shown");
+                } else {
+                    localStorage.setItem("email", $("#username").val());
+                    localStorage.setItem("password", $("#password").val());
+                    location.reload();
+                }
+            })
+        </script>
+    </body>
+</html>
