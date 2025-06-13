@@ -4,172 +4,25 @@
         <title>2</title>
         <link rel="icon" href="icon.png" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-        <style>
-            @font-face {
-                font-family: "Open Sans";
-                src: url("opensans.ttf");
-            }
-
-            * {
-                font-family: "Open Sans";
-            }
-
-            body {
-                width: 100vw;
-                height: 100vh;
-                background-position: center;
-                background-size: cover;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-                background-image: url("background.jpeg");
-                backdrop-filter: brightness(0.7);
-            }
-
-            /* div {
-                outline: 1px solid red;
-            } */
-
-            span.size-48 {
-                font-size: 48px;
-                font-variation-settings: 'OPSZ' 48;
-            }
-
-            #top {
-                width: 100%;
-                flex-grow: 1;
-                display: flex;
-                align-items: stretch;
-            }
-
-            #bottom {
-                width: 100%;
-                padding: 0 15px;
-                bottom: 0;
-                left: 0;
-                color: white;
-                font-size: 4rem;
-                display: flex;
-                box-sizing: border-box;
-                align-items: stretch;
-            }
-
-            .icon-button {
-                display: inline-block;
-                cursor: pointer;
-            }
-            .icon-button:hover {
-                color: rgb(200, 200, 200);
-            }
-            .icon-button:active {
-                color: rgb(150, 150, 150);
-            }
-
-            #auth {
-                display: none;
-                justify-content: center;
-                align-items: center;
-            }
-            #auth input {
-                border: 3px solid gray;
-                border-radius: 5px;
-                font-size: 1rem;
-                margin-right: 1rem;
-                padding: 5px;
-            }
-            #auth.shown {
-                display: flex;
-            }
-
-            #grace, #jack {
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-                box-sizing: border-box;
-                flex-basis: 50%;
-            }
-
-            .time {
-                color: white;
-                text-shadow: 1px 1px 3px black;
-                padding: 10px 25px;
-                height: 9rem;
-            }
-            #jack .time {
-                text-align: right;
-            }
-            .time .big {
-                font-size: 5rem;
-                transition: font-size 0.5s ease-in-out;
-            }
-            .time .small {
-                font-size: 1.5rem;
-            }
-
-            #menu.hidden {
-                display: none;
-            }
-
-            #menu > div {
-                margin-right: 2rem;
-            }
-
-            .notification {
-                background-color: red;
-                border-radius: 50%;
-                height: 10px;
-                width: 10px;
-                position: absolute;
-                top: 10px;
-                right: -10px;
-            }
-            #menu-button .notification {
-                right: 0px;
-            }
-
-            .content {
-                flex-grow: 1;
-                padding: 2rem;
-                display: flex;
-                flex-direction: column;
-            }
-
-            #text {
-                background-color: rgba(150, 150, 150, 0.9);
-                border: 3px solid black;
-                border-radius: 10px;
-                flex-grow: 1;
-                padding: 1rem;
-                font-size: 1rem;
-                overflow-y: auto;
-            }
-
-            #textbox {
-                background-color: rgba(255, 255, 255, 0.9);
-                border: 3px solid black;
-                border-radius: 10px;
-                flex-grow: 1;
-                padding: 1rem;
-                resize: none;
-                font-size: 1rem;
-                overflow-y: auto;
-            }
-        </style>
+        <link href="style.css" rel="stylesheet" />
     </head>
     <body>
+        <div id="modal" class="hidden">
+            <div class="icon-button" id="close-button">
+                <span class="material-symbols-outlined size-48">check</span>
+            </div>
+        </div>
         <div id="top">
             <div id="grace">
                 <div class="time">
-                    <span class="big" style="margin-right: 10px"></span><span class="small"></span>
+                    <div class="big" style="margin-right: 20px"></div><div class="small"></div>
                 </div>
                 <div class="content">
                 </div>
             </div>
             <div id="jack">
                 <div class="time">
-                    <span class="small" style="margin-right: 10px"></span><span class="big"></span>
+                    <div class="small" style="margin-right: 20px"></div><div class="big"></div>
                 </div>
                 <div class="content">
                 </div>
@@ -183,8 +36,12 @@
             <div class="icon-button" id="auth-button">
                 <span class="material-symbols-outlined size-48">lock</span>
             </div>
-            <div style="flex-grow: 1"></div>
+            <div id="bookmarks">
+            </div>
             <div id="menu" class="hidden">
+                <div class="icon-button" id="bookmark-button">
+                    <span class="material-symbols-outlined size-48">bookmark</span>
+                </div>
                 <div class="icon-button" id="notebook-button" style="position: relative">
                     <span class="material-symbols-outlined size-48">face</span>
                 </div>
@@ -193,7 +50,6 @@
                 <span class="material-symbols-outlined size-48">arrow_back_ios</span>
             </div>
         </div>
-
         <script src="jquery.js"></script>
         <script type="module" src="script.js"></script>
     </body>

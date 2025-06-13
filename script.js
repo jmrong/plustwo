@@ -31,12 +31,22 @@ function updateTime(person, tz) {
     if (minutes < 10) minutes = "0" + minutes;
     if (seconds < 10) seconds = "0" + seconds;
     $("#" + person + " .time .big").html(hours + ":" + minutes);
-    $("#" + person + " .time .small").html(seconds);
+    if (person == selectedUser) {
+        let day = now.getDay();
+        let month = now.getMonth();
+        let date = now.getDate();
+        let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        $("#" + person + " .time .small").html(days[day] + " " + months[month] + " " + date + "<br>" + (now.getHours() < 12 ? "AM" : "PM") + "<br>" + seconds);
+    } else {
+        $("#" + person + " .time .small").html((now.getHours() < 12 ? "AM" : "PM") + "<br>" + seconds);
+    }
 }
 
 let selectedUser = null;
 let otherUser = null;
 let notifications = [];
+let bookmarks = [{}, {}, {}, {}, {}, {}, {}, {}];
 async function authLoaded() {
     if (auth.currentUser.email == atob("cm9uZ2phY2ttaWxlc0BnbWFpbC5jb20=")) {
         selectedUser = "jack";
@@ -68,6 +78,17 @@ $(() => {
             updateTime("jack", "America/New_York");
         }, 1000);
     }, 1000 - now.getMilliseconds());
+
+    if (localStorage.getItem("bookmarks")) {
+        bookmarks = JSON.parse(localStorage.getItem("bookmarks"));
+        bookmarks.forEach((bookmark) => {
+            if (bookmark.url) {
+                $("<div class='bookmark'><img src='https://favicone.com/" + bookmark.url.replace(/^\/\/|^.*?:(\/\/)?/, '') + "?s=48' /><span>" + bookmark.name + "</span></div>").click(() => {
+                    window.open(bookmark.url, "_self");
+                }).appendTo("#bookmarks");
+            }
+        });
+    }
 
     let email = null;
     let password = null;
@@ -106,6 +127,7 @@ $("#auth-button").click(() => {
 
 let menuShown = false;
 $("#menu-button").click(() => {
+    $("#bookmarks").toggleClass("hidden");
     $("#menu").toggleClass("hidden");
     if (!menuShown) {
         menuShown = true;
@@ -148,4 +170,37 @@ $("#notebook-button").click(async () => {
             });
         });
     }
+});
+
+$("#bookmark-button").click(() => {
+    $("#modal").removeClass("hidden");
+    $("#modal .bookmark-entry").remove();
+    for (let i = 0; i < bookmarks.length; i++) {
+        $("#modal").append("<div class='bookmark-entry' id='bookmark-" + i + "'><input size='50' type='text' placeholder='Name' value = '" + (bookmarks[i]?.name || "") + "' /><input size='50' type='url' placeholder='URL' value = '" + (bookmarks[i]?.url || "") + "' /></div>");
+    }
+});
+$("#close-button").click(() => {
+    $("#modal").addClass("hidden");
+    for (let i = 0; i < bookmarks.length; i++) {
+        let name = $("#bookmark-" + i + " input[type='text']").val();
+        let url = $("#bookmark-" + i + " input[type='url']").val();
+        if (!/^https?:\/\//i.test(url)) {
+            url = 'http://' + url;
+        }
+        if (name && url) {
+            bookmarks[i] = {name: name, url: url};
+        } else {
+            bookmarks[i] = {};
+        }
+    }
+    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+    $("#bookmarks").empty();
+    bookmarks.forEach((bookmark) => {
+        if (bookmark.name && bookmark.url) {
+            $("<div class='bookmark'><img src='https://favicone.com/" + bookmark.url.replace(/^\/\/|^.*?:(\/\/)?/, '') + "?s=48' /><span>" + bookmark.name + "</span></div>").click(() => {
+                window.open(bookmark.url, "_self");
+            }).appendTo("#bookmarks");
+        }
+    });
+    $("#menu-button").click();
 });
