@@ -88,12 +88,14 @@
                 flex-direction: column;
                 flex-grow: 1;
                 box-sizing: border-box;
+                flex-basis: 50%;
             }
 
             .time {
                 color: white;
                 text-shadow: 1px 1px 3px black;
                 padding: 10px 25px;
+                height: 9rem;
             }
             #jack .time {
                 text-align: right;
@@ -105,6 +107,55 @@
             .time .small {
                 font-size: 1.5rem;
             }
+
+            #menu.hidden {
+                display: none;
+            }
+
+            #menu > div {
+                margin-right: 2rem;
+            }
+
+            .notification {
+                background-color: red;
+                border-radius: 50%;
+                height: 10px;
+                width: 10px;
+                position: absolute;
+                top: 10px;
+                right: -10px;
+            }
+            #menu-button .notification {
+                right: 0px;
+            }
+
+            .content {
+                flex-grow: 1;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #text {
+                background-color: rgba(150, 150, 150, 0.9);
+                border: 3px solid black;
+                border-radius: 10px;
+                flex-grow: 1;
+                padding: 1rem;
+                font-size: 1rem;
+                overflow-y: auto;
+            }
+
+            #textbox {
+                background-color: rgba(255, 255, 255, 0.9);
+                border: 3px solid black;
+                border-radius: 10px;
+                flex-grow: 1;
+                padding: 1rem;
+                resize: none;
+                font-size: 1rem;
+                overflow-y: auto;
+            }
         </style>
     </head>
     <body>
@@ -112,11 +163,15 @@
             <div id="grace">
                 <div class="time">
                     <span class="big" style="margin-right: 10px"></span><span class="small"></span>
-                </div>  
+                </div>
+                <div class="content">
+                </div>
             </div>
             <div id="jack">
                 <div class="time">
                     <span class="small" style="margin-right: 10px"></span><span class="big"></span>
+                </div>
+                <div class="content">
                 </div>
             </div>
         </div>
@@ -129,106 +184,17 @@
                 <span class="material-symbols-outlined size-48">lock</span>
             </div>
             <div style="flex-grow: 1"></div>
-            <div class="icon-button" id="content-button" style="position: relative; display: none">
-                <span class="material-symbols-outlined size-48">face</span>
+            <div id="menu" class="hidden">
+                <div class="icon-button" id="notebook-button" style="position: relative">
+                    <span class="material-symbols-outlined size-48">face</span>
+                </div>
+            </div>
+            <div class="icon-button" id="menu-button" style="position: relative">
+                <span class="material-symbols-outlined size-48">arrow_back_ios</span>
             </div>
         </div>
 
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        <script type="module">
-            // Import the functions you need from the SDKs you need
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-            // TODO: Add SDKs for Firebase products that you want to use
-            // https://firebase.google.com/docs/web/setup#available-libraries
-            import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-            import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-            // Your web app's Firebase configuration
-            const firebaseConfig = {
-                apiKey: "AIzaSyDmoNgi43__XfEhcxOJuIj8EefX9m6Vonc",
-                authDomain: "plustwo-ac8cf.firebaseapp.com",
-                projectId: "plustwo-ac8cf",
-                storageBucket: "plustwo-ac8cf.firebasestorage.app",
-                messagingSenderId: "186273618852",
-                appId: "1:186273618852:web:f6ecd29aea9e6e57397f31"
-            };
-
-            // Initialize Firebase
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const firestore = getFirestore(app);
-            setPersistence(auth, browserLocalPersistence);
-
-            function updateTime(person, tz) {
-                let now = new Date(new Date().toLocaleString("en-US", {timeZone: tz}));
-                let hours = now.getHours();
-                let minutes = now.getMinutes();
-                let seconds = now.getSeconds();
-                if (hours < 10) hours = "0" + hours;
-                if (hours > 12) hours -= 12;
-                if (hours == 0) hours = 12;
-                if (minutes < 10) minutes = "0" + minutes;
-                if (seconds < 10) seconds = "0" + seconds;
-                $("#" + person + " .time .big").html(hours + ":" + minutes);
-                $("#" + person + " .time .small").html(seconds);
-            }
-
-            let selectedUser = null;
-            function authLoaded() {
-                if (auth.currentUser.email == atob("cm9uZ2phY2ttaWxlc0BnbWFpbC5jb20=")) {
-                    selectedUser = "jack";
-                } else if (auth.currentUser.email == atob("eXVncmFjZTE3MDQ4QGdtYWlsLmNvbQ==")) {
-                    selectedUser = "grace";
-                }
-                setTimeout(() => {
-                    $("#" + selectedUser + " .time .big").css("font-size", "7rem");
-                }, 200);
-            }
-
-            $(() => {
-                let now = new Date();
-                setTimeout(() => {
-                    updateTime("grace", "America/Chicago");
-                    updateTime("jack", "America/New_York");
-                    setInterval(() => {
-                        updateTime("grace", "America/Chicago");
-                        updateTime("jack", "America/New_York");
-                    }, 1000);
-                }, 1000 - now.getMilliseconds());
-
-                let email = null;
-                let password = null;
-                if (localStorage.getItem("email")) {
-                    email = localStorage.getItem("email");
-                    $("#username").val(localStorage.getItem("email"));
-                }
-                if (localStorage.getItem("password")) {
-                    password = localStorage.getItem("password");
-                    $("#password").val(localStorage.getItem("password"));
-                }
-                if (email && password && !auth.currentUser) {
-                    signInWithEmailAndPassword(auth, email, password)
-                        .then((userCredential) => {
-                            authLoaded();
-                        })
-                        .catch((error) => {
-                            alerrt("Error signing in: " + error.message);
-                        });
-                } else if (auth.currentUser) {
-                    authLoaded();
-                }
-            });
-
-            let authShown = false;
-            $("#auth-button").click(() => {
-                if (!authShown) {
-                    authShown = true;
-                    $("#auth").addClass("shown");
-                } else {
-                    localStorage.setItem("email", $("#username").val());
-                    localStorage.setItem("password", $("#password").val());
-                    location.reload();
-                }
-            })
-        </script>
+        <script src="jquery.js"></script>
+        <script type="module" src="script.js"></script>
     </body>
 </html>
