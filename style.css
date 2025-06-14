@@ -55,10 +55,10 @@ span.size-48 {
     cursor: pointer;
 }
 .icon-button:hover {
-    color: rgb(200, 200, 200);
+    color: rgb(200, 200, 200) !important;
 }
 .icon-button:active {
-    color: rgb(150, 150, 150);
+    color: rgb(150, 150, 150) !important;
 }
 
 #auth {
@@ -89,7 +89,8 @@ span.size-48 {
     color: white;
     text-shadow: 1px 1px 3px black;
     padding: 10px 25px;
-    height: 9rem;
+    padding-top: 0;
+    height: 10rem;
 }
 #jack .time {
     text-align: right;
@@ -194,7 +195,7 @@ span.size-48 {
     opacity: 0.8;
 }
 
-#modal {
+.modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -207,10 +208,10 @@ span.size-48 {
     align-items: center;
     z-index: 1000;
 }
-#modal.hidden {
+.modal.hidden {
     display: none;
 }
-#modal #close-button {
+.modal .close-button {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -227,4 +228,46 @@ span.size-48 {
     font-size: 1rem;
     border: 2px solid black;
     border-radius: 5px;
+}
+
+.mood div {
+    width: 20rem;
+    transition: margin-left 0.5s ease-in-out, margin-right 0.5s ease-in-out;
+    position: relative;
+    height: 1rem;
+    border: 1px solid white;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+.mood.hidden {
+    visibility: hidden;
+}
+.mood.pointer {
+    cursor: pointer;
+}
+
+.mood-entry {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.mood-color {
+    height: 2rem;
+    width: 20rem;
+    border: 2px solid white;
+    border-radius: 5px;
+    margin-right: 20px;
+}
+.mood-entry div:last-child {
+    color: white;
+    width: 6rem;
+}
+.mood-entry:not(:last-child):hover {
+    font-weight: bold;
+    text-shadow: 0 0 2px white;
+    cursor: pointer;
+}
+.mood-entry.mood-entry:not(:last-child):active {
+    opacity: 0.8;
 }

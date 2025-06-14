@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebas
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDmoNgi43__XfEhcxOJuIj8EefX9m6Vonc",
@@ -63,11 +63,75 @@ async function authLoaded() {
     if (notifications.length) {
         $("#menu-button").append("<div class='notification'></div>");
     }
+    let moodSnap = await getDoc(doc(firestore, "data", "mood"));
+    let resetDate = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Chicago"}));
+    resetDate.setHours(4, 0, 0, 0);
+    let afterFour = (new Date(new Date().toLocaleString("en-US", {timeZone: "America/Chicago"}))) > resetDate;
+    if (afterFour && moodSnap.data().update.toDate() < resetDate) {
+        await updateDoc(doc(firestore, "data", "mood"), {
+            update: Timestamp.fromDate(new Date()),
+            grace: "#808080",
+            jack: "#808080"
+        });
+    } else {
+        $("#grace .mood div").css("background-color", moodSnap.data().grace);
+        $("#jack .mood div").css("background-color", moodSnap.data().jack);
+        $("#mood-modal input[type='color']").val(moodSnap.data()[selectedUser]);
+    }
+
+    $(".mood").removeClass("hidden");
+    $("#" + selectedUser + " .mood").addClass("pointer").click(() => {
+        $("#mood-modal").removeClass("hidden");
+    });
     setTimeout(() => {
         $("#" + selectedUser + " .time .big").css("font-size", "7rem");
+        if (selectedUser == "jack") {
+            $("#jack .mood div").css("margin-right", "30px");
+        } else {
+            $("#grace .mood div").css("margin-left", "30px");
+        }
     }, 300);
 }
 
+$("#green").click(async () => {
+    await updateDoc(doc(firestore, "data", "mood"), {
+        [selectedUser]: "#2cc42c",
+        update: Timestamp.fromDate(new Date())
+    });
+    $("#mood-modal").addClass("hidden");
+    $("#" + selectedUser + " .mood div").css("background-color", "#2cc42c");
+    $(".mood-entry input[type='color']").val("#2cc42c");
+});
+$("#yellow").click(async () => {
+    await updateDoc(doc(firestore, "data", "mood"), {
+        [selectedUser]: "#e2d408",
+        update: Timestamp.fromDate(new Date())
+    });
+    $("#mood-modal").addClass("hidden");
+    $("#" + selectedUser + " .mood div").css("background-color", "#e2d408");
+    $(".mood-entry input[type='color']").val("#e2d408");
+});
+$("#red").click(async () => {
+    await updateDoc(doc(firestore, "data", "mood"), {
+        [selectedUser]: "#ee0000",
+        update: Timestamp.fromDate(new Date())
+    });
+    $("#mood-modal").addClass("hidden");
+    $("#" + selectedUser + " .mood div").css("background-color", "#ee0000");
+    $(".mood-entry input[type='color']").val("#ee0000");
+});
+$(".mood-entry input[type='color']").change(async () => {
+    let color = $(".mood-entry input[type='color']").val();
+    await updateDoc(doc(firestore, "data", "mood"), {
+        [selectedUser]: color,
+        update: Timestamp.fromDate(new Date())
+    });
+    $("#mood-modal").addClass("hidden");
+    $("#" + selectedUser + " .mood div").css("background-color", color);
+});
+$("#mood-modal .close-button").click(() => {
+    $("#mood-modal").addClass("hidden");
+});
 $(() => {
     let now = new Date();
     setTimeout(() => {
@@ -173,14 +237,14 @@ $("#notebook-button").click(async () => {
 });
 
 $("#bookmark-button").click(() => {
-    $("#modal").removeClass("hidden");
-    $("#modal .bookmark-entry").remove();
+    $("#bookmark-modal").removeClass("hidden");
+    $("#bookmark-modal .bookmark-entry").remove();
     for (let i = 0; i < bookmarks.length; i++) {
-        $("#modal").append("<div class='bookmark-entry' id='bookmark-" + i + "'><input size='50' type='text' placeholder='Name' value = '" + (bookmarks[i]?.name || "") + "' /><input size='50' type='url' placeholder='URL' value = '" + (bookmarks[i]?.url || "") + "' /></div>");
+        $("#bookmark-modal").append("<div class='bookmark-entry' id='bookmark-" + i + "'><input size='50' type='text' placeholder='Name' value = '" + (bookmarks[i]?.name || "") + "' /><input size='50' type='url' placeholder='URL' value = '" + (bookmarks[i]?.url || "") + "' /></div>");
     }
 });
-$("#close-button").click(() => {
-    $("#modal").addClass("hidden");
+$("#bookmark-modal .close-button").click(() => {
+    $("#bookmark-modal").addClass("hidden");
     for (let i = 0; i < bookmarks.length; i++) {
         let name = $("#bookmark-" + i + " input[type='text']").val();
         let url = $("#bookmark-" + i + " input[type='url']").val();
