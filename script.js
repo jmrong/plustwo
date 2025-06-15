@@ -148,7 +148,7 @@ $(() => {
         bookmarks.forEach((bookmark) => {
             if (bookmark.url) {
                 $("<div class='bookmark'><img src='https://favicone.com/" + bookmark.url.replace(/^\/\/|^.*?:(\/\/)?/, '') + "?s=48' /><span>" + bookmark.name + "</span></div>").click(() => {
-                    window.open(bookmark.url, "_self");
+                    window.open(bookmark.url, "_top");
                 }).appendTo("#bookmarks");
             }
         });
